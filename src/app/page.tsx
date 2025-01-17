@@ -8,7 +8,7 @@ export default function Home() {
       fontSize: '2rem',
       fontFamily: 'Arial, sans-serif',
     }}>
-      Jessica es la Mejor
+      JOSE PUTTO
     </div>
   );
 }
