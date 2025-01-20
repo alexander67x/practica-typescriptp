@@ -1,14 +1,12 @@
+"use client";
+
 import { useState } from "react";
 
 export default function Home() {
-  const [tasks, setTasks] = useState<string[]>([
-    "Primera tarea",
-    "Segunda tarea",
-    "Tercera tarea",
-  ]);
+  const [tasks, setTasks] = useState<string[]>([]);
   const [newTask, setNewTask] = useState("");
 
-  const handleAddTask = () => {
+  const addTask = () => {
     if (newTask.trim() !== "") {
       setTasks([...tasks, newTask]);
       setNewTask("");
@@ -16,38 +14,47 @@ export default function Home() {
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <h1 style={{ fontSize: "24px", marginBottom: "20px" }}>Lista de tareas</h1>
-      <ul style={{ listStyleType: "none", padding: 0 }}>
+    <div
+      style={{
+        backgroundColor: "#ffffff", 
+        color: "#000000", 
+        padding: "20px",
+        fontFamily: "Arial",
+        minHeight: "100vh", 
+      }}
+    >
+      <h1>Lista de tareas</h1>
+      <ul>
         {tasks.map((task, index) => (
-          <li key={index} style={{ marginBottom: "10px" }}>
-            - {task}
-          </li>
+          <li key={index}>{task}</li>
         ))}
       </ul>
-      <input
-        type="text"
-        placeholder="Nueva tarea"
-        value={newTask}
-        onChange={(e) => setNewTask(e.target.value)}
-        style={{
-          padding: "8px",
-          marginRight: "10px",
-          border: "1px solid #ccc",
-        }}
-      />
-      <button
-        onClick={handleAddTask}
-        style={{
-          padding: "8px 12px",
-          backgroundColor: "#007bff",
-          color: "#fff",
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
-        Agregar tarea
-      </button>
+      <div>
+        <input
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)}
+          placeholder="Nueva tarea"
+          style={{
+            marginRight: "10px",
+            border: "1px solid #ccc",
+            padding: "5px",
+            color: "#000000", 
+            backgroundColor: "#ffffff", 
+          }}
+        />
+        <button
+          onClick={addTask}
+          style={{
+            backgroundColor: "#0070f3",
+            color: "#ffffff",
+            padding: "5px 10px",
+            border: "none",
+            cursor: "pointer",
+          }}
+        >
+          Agregar
+        </button>
+      </div>
     </div>
   );
 }
