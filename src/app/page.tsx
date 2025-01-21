@@ -1,26 +1,58 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [tasks, setTasks] = useState<string[]>([]);
   const [newTask, setNewTask] = useState("");
 
-  const addTask = () => {
+  const addTask = async () => {
     if (newTask.trim() !== "") {
-      setTasks([...tasks, newTask]);
-      setNewTask("");
+      try {
+        const response = await fetch("/api/tasks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: newTask }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to add task: ${response.status}`);
+        }
+
+        const savedTask = await response.json();
+        setTasks((prevTasks) => [...prevTasks, savedTask.title]); 
+        setNewTask("");
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const response = await fetch('/api/tasks', { method: 'GET' });
+        if (!response.ok) {
+          throw new Error(`Failed to fetch tasks: ${response.status}`);
+        }
+        const data = await response.json();
+        setTasks(data.map((task: { title: string }) => task.title)); 
+      } catch (error) {
+        console.error('Error fetching tasks:', error);
+      }
+    };
+
+    fetchTasks();
+  }, []);
 
   return (
     <div
       style={{
-        backgroundColor: "#ffffff", 
-        color: "#000000", 
+        backgroundColor: "#ffffff",
+        color: "#000000",
         padding: "20px",
         fontFamily: "Arial",
-        minHeight: "100vh", 
+        minHeight: "100vh",
       }}
     >
       <h1>Lista de tareas</h1>
@@ -38,8 +70,8 @@ export default function Home() {
             marginRight: "10px",
             border: "1px solid #ccc",
             padding: "5px",
-            color: "#000000", 
-            backgroundColor: "#ffffff", 
+            color: "#000000",
+            backgroundColor: "#ffffff",
           }}
         />
         <button
