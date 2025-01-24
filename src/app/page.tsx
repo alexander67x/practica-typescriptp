@@ -3,27 +3,32 @@
 import { useState, useEffect } from "react";
 
 export default function Home() {
-  const [tasks, setTasks] = useState<string[]>([]);
+  const [tasks, setTasks] = useState<{ id: number; title: string }[]>([]);
   const [newTask, setNewTask] = useState("");
 
-  const addTask = async () => {
+
+  const addTask = async (title: string) => {
+    const response = await fetch("/api/tasks", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ title }),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to add task");
+    }
+    return response.json();
+  };
+
+  const handleAddTask = async () => {
     if (newTask.trim() !== "") {
       try {
-        const response = await fetch("/api/tasks", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: newTask }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to add task: ${response.status}`);
-        }
-
-        const savedTask = await response.json();
-        setTasks((prevTasks) => [...prevTasks, savedTask.title]); 
+        const createdTask = await addTask(newTask);
+        setTasks((prev) => [...prev, createdTask]); 
         setNewTask("");
       } catch (error) {
-        console.error(error);
+        console.error("Error adding task:", error);
       }
     }
   };
@@ -31,14 +36,14 @@ export default function Home() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await fetch('/api/tasks', { method: 'GET' });
+        const response = await fetch("/api/tasks");
         if (!response.ok) {
           throw new Error(`Failed to fetch tasks: ${response.status}`);
         }
         const data = await response.json();
-        setTasks(data.map((task: { title: string }) => task.title)); 
+        setTasks(data);
       } catch (error) {
-        console.error('Error fetching tasks:', error);
+        console.error("Error fetching tasks:", error);
       }
     };
 
@@ -57,8 +62,8 @@ export default function Home() {
     >
       <h1>Lista de tareas</h1>
       <ul>
-        {tasks.map((task, index) => (
-          <li key={index}>{task}</li>
+        {tasks.map((task) => (
+          <li key={task.id}>{task.title}</li>
         ))}
       </ul>
       <div>
@@ -75,7 +80,7 @@ export default function Home() {
           }}
         />
         <button
-          onClick={addTask}
+          onClick={handleAddTask}
           style={{
             backgroundColor: "#0070f3",
             color: "#ffffff",
